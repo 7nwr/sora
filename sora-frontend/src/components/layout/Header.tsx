@@ -36,10 +36,18 @@ export function Header({ lang, setLang }: HeaderProps) {
           </button>
         </div>
 
-        <Button className="pointer-events-auto bg-white text-zinc-950 font-semibold px-5 border border-transparent hover:bg-transparent hover:text-white hover:border-sky-500/30 transition-all duration-300 flex gap-2 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-none">
-          <DiscordIcon className="h-4 w-4" />
-          Discord
-        </Button>
+        {/* Botão do Discord com Link Oficial */}
+        <a 
+          href="https://discord.gg/zDEqbQm8rx" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="pointer-events-auto"
+        >
+          <Button className="bg-white text-zinc-950 font-semibold px-5 border border-transparent hover:bg-transparent hover:text-white hover:border-sky-500/30 transition-all duration-300 flex gap-2 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-none">
+            <DiscordIcon className="h-4 w-4" />
+            Discord
+          </Button>
+        </a>
         
       </div>
     </header>
