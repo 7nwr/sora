@@ -189,6 +189,6 @@ app.get('/download-core', (req: Request, res: Response) => {
 // ==========================================
 // 🎧 INICIANDO O SERVIDOR
 // ==========================================
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`[+] Sora API is running on port ${PORT}`);
 });
