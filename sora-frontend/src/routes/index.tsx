@@ -1,18 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Header } from "@/components/layout/Header"
 import { Button } from "@/components/ui/button"
 import { ParticlesBackground } from "@/components/layout/ParticlesBackground"
 import { ErasingText } from "@/components/ui/ErasingText"
-
-// Ensina ao TypeScript que o script do SellAuth vai existir na janela do navegador
-declare global {
-  interface Window {
-    sellAuthEmbed?: {
-      checkout: (element: HTMLElement | null, options: any) => void;
-    }
-  }
-}
 
 const content = {
   en: {
@@ -43,38 +34,11 @@ function IndexComponent() {
 
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false)
   const [fillWidth, setFillWidth] = useState("0%")
-  const [scriptLoaded, setScriptLoaded] = useState(false)
-
-  // 1. Injeta o motor oficial do SellAuth silenciosamente quando a página carrega
-  useEffect(() => {
-    const scriptId = 'sellauth-embed-script'
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script')
-      script.id = scriptId
-      script.src = "https://sellauth.com/assets/js/sellauth-embed-2.js"
-      script.async = true
-      script.onload = () => setScriptLoaded(true)
-      document.body.appendChild(script)
-    } else {
-      setScriptLoaded(true)
-    }
-  }, [])
 
   const handleBuyClick = () => {
-    if (!scriptLoaded || !window.sellAuthEmbed) {
-      console.warn("Aguarde, o script de pagamento ainda está carregando...")
-      return
-    }
-
+    // Apenas controla a animação visual do botão
     setIsCheckoutLoading(true)
     setTimeout(() => setFillWidth("100%"), 10)
-
-    // 2. Dispara o checkout nativo ignorando o React
-    window.sellAuthEmbed.checkout(null, {
-      cart: [{ productId: 788439, variantId: 1331384, quantity: 1 }], // Coloque seus IDs aqui
-      shopId: 251950, // Coloque seu Shop ID aqui
-      modal: true
-    })
 
     // Reseta a animação do botão após o modal abrir, para o caso do usuário fechar
     setTimeout(() => {
@@ -125,11 +89,12 @@ function IndexComponent() {
             </p>
 
             <Button 
+              data-sellauth-product="788439"
+              data-sellauth-variant="1331384"
               onClick={handleBuyClick}
-              disabled={isCheckoutLoading}
               className={`relative overflow-hidden font-bold px-10 h-14 text-lg border-0 transition-colors duration-300 rounded-full flex items-center justify-center min-w-[280px]
                 ${isCheckoutLoading 
-                  ? "bg-transparent text-white cursor-not-allowed shadow-none" 
+                  ? "bg-transparent text-white shadow-none" 
                   : "bg-white text-zinc-950 hover:bg-transparent hover:text-white shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-none"
                 }`}
             >
