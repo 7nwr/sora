@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import pg from 'pg';
 import crypto from 'crypto';
-import path from 'path'; // 🚀 Importado para gerenciar caminhos de arquivos
+import path from 'path';
 
 const { Pool } = pg;
 const app = express();
@@ -15,13 +15,18 @@ app.use(express.json());
 // ==========================================
 // 🗄️ CONEXÃO COM O BANCO DE DADOS
 // ==========================================
-const pool = new Pool({
-  user: 'postgres',
-  host: '172.20.144.1', // O IP da ponte WSL
-  database: 'postgres',
-  password: 'inazuma', // ⚠️ SUA SENHA DO POSTGRES
-  port: 5432,
-});
+// Se estiver no Railway, usa a variável de ambiente. Se estiver no PC, usa o seu WSL.
+const pool = new Pool(
+  process.env.DATABASE_URL
+    ? { connectionString: process.env.DATABASE_URL }
+    : {
+        user: 'postgres',
+        host: '172.20.144.1',
+        database: 'postgres',
+        password: 'inazuma',
+        port: 5432,
+      }
+);
 
 pool.connect()
   .then(() => console.log('[+] Connected to PostgreSQL database successfully!'))
@@ -99,10 +104,8 @@ app.get('/validate', async (req: Request, res: Response) => {
 app.post('/generate', async (req: Request, res: Response) => {
   const type = req.body.type || 'TIME'; 
   
-  // Gera 8 bytes de dados criptograficamente seguros e transforma em hexadecimal (16 caracteres)
   const secureHash = crypto.randomBytes(8).toString('hex').toUpperCase();
   
-  // Divide a string em dois blocos para ficar bonito e legível
   const block1 = secureHash.slice(0, 8);
   const block2 = secureHash.slice(8, 16);
   
@@ -167,16 +170,18 @@ app.post('/login', async (req: Request, res: Response) => {
   }
 });
 
-// 6. Rota de Download Seguro do Core para Memória (Lê do build do Windows)
+// 6. Rota de Download Seguro do Core para Memória
 app.get('/download-core', (req: Request, res: Response) => {
-  const filePath = '/mnt/c/Users/xitxx/Desktop/sora/build/spoofer.exe';
+  // ATENÇÃO: Para funcionar no Railway, o spoofer.exe precisará estar dentro da pasta do projeto!
+  // Por enquanto, configurei para procurar um arquivo "spoofer.exe" na mesma pasta da API.
+  const filePath = path.join(__dirname, 'spoofer.exe'); 
   
   res.sendFile(filePath, (err) => {
     if (err) {
-      console.error("Erro ao enviar o spoofer do Windows:", err);
-      return res.status(404).json({ error: "Modulo central nao encontrado no Desktop do Windows" });
+      console.error("Erro ao enviar o spoofer:", err);
+      return res.status(404).json({ error: "Módulo central não encontrado no servidor." });
     } else {
-      console.log("[+] Spoofer transmitido com sucesso da pasta build do Windows para a memoria do Loader!");
+      console.log("[+] Spoofer transmitido com sucesso para a memória do Loader!");
     }
   });
 });
@@ -185,5 +190,5 @@ app.get('/download-core', (req: Request, res: Response) => {
 // 🎧 INICIANDO O SERVIDOR
 // ==========================================
 app.listen(PORT, () => {
-  console.log(`[+] Sora API is running on http://localhost:${PORT}`);
+  console.log(`[+] Sora API is running on port ${PORT}`);
 });
